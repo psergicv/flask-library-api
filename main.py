@@ -10,12 +10,12 @@ app = Flask(__name__)
 basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///" + os.path.join(basedir, "library.db")
 app.config['JWT_SECRET_KEY'] = "super-secret-key"
-app.config['MAIL_SERVER'] = 'sandbox.smtp.mailtrap.io'
-app.config['MAIL_PORT'] = 2525
-app.config['MAIL_USERNAME'] = os.environ['MAIL_USERNAME']
-app.config['MAIL_PASSWORD'] = os.environ['MAIL_PASSWORD']
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USE_SSL'] = False
+# app.config['MAIL_SERVER'] = 'sandbox.smtp.mailtrap.io'
+# app.config['MAIL_PORT'] = 2525
+# app.config['MAIL_USERNAME'] = os.environ['MAIL_USERNAME']
+# app.config['MAIL_PASSWORD'] = os.environ['MAIL_PASSWORD']
+# app.config['MAIL_USE_TLS'] = True
+# app.config['MAIL_USE_SSL'] = False
 
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
@@ -72,19 +72,19 @@ books_schema = BookSchema(many=True)
 
 # =============================== CLI Commands ==========================================
 
-@app.cli.commands('db_create')
+@app.cli.command('db_create')
 def db_create():
     db.create_all()
     print("Database created with success")
 
 
-@app.cli.commands('db_drop')
+@app.cli.command('db_drop')
 def db_drop():
     db.drop_all()
     print("Database dropped with success")
 
 
-@app.cli.commands('db_seed')
+@app.cli.command('db_seed')
 def db_seed():
     test_user = User(
         firstname="John",
@@ -113,4 +113,34 @@ def db_seed():
         available_count=5
     )
 
+    db.session.add(test_user)
+    db.session.add(test_book)
+    db.session.commit()
+
+
 # =============================== API Routes ==========================================
+
+@app.route('/')
+def index():
+    return jsonify(message="Library API created using Python and Flask Web Framework")
+
+
+@app.route('/book_list')
+def book_list():
+    all_books = Book.query.all()
+    result = books_schema.dump(all_books)
+    return jsonify(result)
+
+
+@app.route('/register', methods=['POST'])
+def register():
+    pass
+
+
+@app.route('/login', methods=['POST'])
+def login():
+    pass
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
