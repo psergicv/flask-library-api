@@ -6,12 +6,11 @@ from flask_jwt_extended import JWTManager, jwt_required, create_access_token
 from flask_mail import Mail, Message
 import os
 
-
 app = Flask(__name__)
 basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///" + os.path.join(basedir, "library.db")
 app.config['JWT_SECRET_KEY'] = "super-secret-key"
-app.config['MAIL_SERVER']='sandbox.smtp.mailtrap.io'
+app.config['MAIL_SERVER'] = 'sandbox.smtp.mailtrap.io'
 app.config['MAIL_PORT'] = 2525
 app.config['MAIL_USERNAME'] = os.environ['MAIL_USERNAME']
 app.config['MAIL_PASSWORD'] = os.environ['MAIL_PASSWORD']
@@ -69,3 +68,49 @@ user_schema = UserSchema()
 users_schema = UserSchema(many=True)
 book_schema = BookSchema()
 books_schema = BookSchema(many=True)
+
+
+# =============================== CLI Commands ==========================================
+
+@app.cli.commands('db_create')
+def db_create():
+    db.create_all()
+    print("Database created with success")
+
+
+@app.cli.commands('db_drop')
+def db_drop():
+    db.drop_all()
+    print("Database dropped with success")
+
+
+@app.cli.commands('db_seed')
+def db_seed():
+    test_user = User(
+        firstname="John",
+        lastname="Smith",
+        username="jsapi",
+        password="qwerty",
+        email="js@test.tst",
+        gender="M"
+    )
+
+    test_book = Book(
+        book_title="Learning Python, 5th Edition",
+        author="Mark Lutz",
+        isbn="1449355730",
+        publisher="O'Reilly Media",
+        publication_year=2013,
+        genre="Programming",
+        synopsis="Get a comprehensive, in-depth introduction to the core Python language with this hands-on book. "
+                 "Based on author Mark Lutz’s popular training course, this updated fifth edition will help you "
+                 "quickly write efficient, high-quality code with Python. It’s an ideal way to begin, whether "
+                 "you’re new to programming or a professional developer versed in other languages.",
+        language="English",
+        page_count=1643,
+        cover_image="https://m.media-amazon.com/images/I/91RcdlPx1CL._SY466_.jpg",
+        inventory_count=5,
+        available_count=5
+    )
+
+# =============================== API Routes ==========================================
