@@ -125,7 +125,7 @@ def index():
     return jsonify(message="Library API created using Python and Flask Web Framework")
 
 
-@app.route('/book_list')
+@app.route('/book_list', methods=['GET'])
 def book_list():
     all_books = Book.query.all()
     result = books_schema.dump(all_books)
@@ -134,11 +134,55 @@ def book_list():
 
 @app.route('/register', methods=['POST'])
 def register():
-    pass
+    email = request.form['email']
+    username = request.form['username']
+    email_in = User.query.filter_by(email=email).first()
+    username_in = User.query.filter_by(username=username).first()
+    if email_in or username_in:
+        return jsonify("Username and/or email are already in our system")
+    else:
+        firstname = request.form['firstname']
+        lastname = request.form['lastname']
+        password = request.form['password']
+        gender = request.form['gender']
+        user = User(firstname=firstname, lastname=lastname, username=username, password=password, email=email,
+                    gender=gender)
+        db.session.add(user)
+        db.session.commit()
+        return jsonify(message="New user registered with success")
 
 
 @app.route('/login', methods=['POST'])
 def login():
+    username = request.form['username']
+    password = request.form['password']
+
+    try_login = User.query.filter_by(username=username, password=password).first()
+
+    if try_login:
+        access_token = create_access_token(identity=username)
+        return jsonify(message="You are logged in successfully", access_token=access_token)
+    else:
+        return jsonify(message="Your username and/or password are wrong")
+
+
+@app.route('/add_book', methods=['POST'])
+def add_book():
+    pass
+
+
+@app.route('/edit_book/<int:book_id>')
+def edit_book(book_id):
+    pass
+
+
+@app.route('/delete_book/<int:book_id>')
+def delete_book(book_id):
+    pass
+
+
+@app.route('/book_details/<int:book_id>')
+def book_details(book_id):
     pass
 
 
