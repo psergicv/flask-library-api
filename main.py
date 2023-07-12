@@ -168,12 +168,55 @@ def login():
 
 @app.route('/add_book', methods=['POST'])
 def add_book():
-    pass
+    isbn = request.form['isbn']
+    isbn_in = Book.query.filter_by(isbn=isbn).first()
+    if isbn_in:
+        return jsonify(message="This book already exists in the system")
+    else:
+        book_title = request.form['book_title']
+        author = request.form['author']
+        publisher = request.form['publisher']
+        publication_year = request.form['publication_year']
+        genre = request.form['genre']
+        synopsis = request.form['synopsis']
+        language = request.form['language']
+        page_count = request.form['page_count']
+        cover_image = request.form['cover_image']
+        inventory_count = request.form['inventory_count']
+        available_count = request.form['available_count']
+
+        book = Book(
+            book_title=book_title, author=author, publisher=publisher, isbn=isbn,
+            publication_year=publication_year, genre=genre, synopsis=synopsis, language=language,
+            page_count=page_count, cover_image=cover_image, inventory_count=inventory_count,
+            available_count=available_count
+        )
+
+        db.session.add(book)
+        db.session.commit()
+        return jsonify(message=f"New book with title \"{book_title}\" added to the system with success!")
 
 
-@app.route('/edit_book/<int:book_id>')
+@app.route('/edit_book/<int:book_id>', methods=['PUT'])
 def edit_book(book_id):
-    pass
+    id = int(request.form['book_id'])
+    book = Book.query.filter_by(book_id=id).first()
+    if book:
+        book.book_title = request.form['book_title']
+        book.author = request.form['book_author']
+        book.publisher = request.form['publisher']
+        book.publication_year = request.form['publication_year']
+        book.genre = request.form['genre']
+        book.synopsis = request.form['synopsis']
+        book.language = request.form['language']
+        book.page_count = request.form['page_count']
+        book.cover_image = request.form['cover_image']
+        book.inventory_count = request.form['inventory_count']
+        book.available_count = request.form['available_cont']
+        db.session.commit()
+        return jsonify(message=f"The book - \"{book.book_title}\" us updates successfully")
+    else:
+        return jsonify(message="The book with such an ID does not exist!")
 
 
 @app.route('/delete_book/<int:book_id>')
