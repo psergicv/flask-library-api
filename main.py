@@ -221,10 +221,10 @@ def edit_book(book_id):
         return jsonify(message="The book with such an ID does not exist!")
 
 
-@app.route('/delete_book/<int:book_id>')
+@app.route('/delete_book/<int:book_id>', methods=['DELETE'])
 @jwt_required()
 def delete_book(book_id):
-    book = Book.query.filter_by(book_id).first()
+    book = Book.query.filter_by(book_id=book_id).first()
     if book:
         db.session.delete(book)
         db.session.commit()
@@ -235,7 +235,12 @@ def delete_book(book_id):
 
 @app.route('/book_details/<int:book_id>')
 def book_details(book_id):
-    pass
+    book = Book.query.filter_by(book_id=book_id).first()
+    if book:
+        result = book_schema.dump(book)
+        return jsonify(result)
+    else:
+        return jsonify(message="There is no book with such an ID")
 
 
 if __name__ == '__main__':
