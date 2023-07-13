@@ -167,6 +167,7 @@ def login():
 
 
 @app.route('/add_book', methods=['POST'])
+@jwt_required()
 def add_book():
     isbn = request.form['isbn']
     isbn_in = Book.query.filter_by(isbn=isbn).first()
@@ -198,6 +199,7 @@ def add_book():
 
 
 @app.route('/edit_book/<int:book_id>', methods=['PUT'])
+@jwt_required()
 def edit_book(book_id):
     id = int(request.form['book_id'])
     book = Book.query.filter_by(book_id=id).first()
@@ -220,8 +222,15 @@ def edit_book(book_id):
 
 
 @app.route('/delete_book/<int:book_id>')
+@jwt_required()
 def delete_book(book_id):
-    pass
+    book = Book.query.filter_by(book_id).first()
+    if book:
+        db.session.delete(book)
+        db.session.commit()
+        return jsonify(message=f"Book with ID {book_id} has been deleted successfully")
+    else:
+        return jsonify(message="There is no book with such an ID.")
 
 
 @app.route('/book_details/<int:book_id>')
